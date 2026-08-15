@@ -1,0 +1,1 @@
+{"type":"ns-llm-agent-pointer","schema_version":"0.1.0","machine_only":true,"authority":"AGENTS.md","entrypoint":"README4AI.md","instruction":"load AGENTS.md then README4AI.md load_order; do not use README.md as primary implementation contract"}
