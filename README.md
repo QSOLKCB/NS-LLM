@@ -2,9 +2,9 @@
 
 > A provenance-aware geometric reasoning architecture for Navier–Stokes and scientific problem solving.
 
-**Status:** architecture and documentation bootstrap. Model/runtime implementation begins in **PR #2**.
+**Status:** architecture/documentation bootstrap. Implementation begins in **PR #2**.
 
-NS-LLM explores a language-model system in which persistent context, dynamic retrieval, geometric structure, learned reasoning, executable computation, verification, and output remain separate but interoperable layers.
+NS-LLM separates persistent context, dynamic retrieval, geometric structure, learned reasoning, executable computation, verification, and output instead of collapsing them into a single context window.
 
 ```text
 NS PROBLEM
@@ -14,8 +14,6 @@ QSOL-CONTEXT
 RES=RAG
     ↓
 GEOMETRIC INFORMATION MAPPED LATTICE
-    ↓
-MODEL CONTEXT / LATENT INTERFACE
     ↓
 LFM2.5-FAMILY BACKBONE
     ↓
@@ -28,63 +26,65 @@ SCIENTIFIC VERIFIER
 PROVENANCE-BOUND OUTPUT
 ```
 
-## Why this architecture
-
-The project is built around one rule:
+## Core idea
 
 > **Do not ask one context window to be memory, retrieval, geometry, reasoning, simulation, and verification at the same time.**
 
-The major layers have different jobs:
-
 | Layer | Role |
 |---|---|
-| **QSOL-CONTEXT** | persistent, provenance-bound project/research context |
+| **QSOL-CONTEXT** | persistent provenance-bound context |
 | **RES=RAG** | dynamic evidence retrieval |
-| **Geometric Information Mapped Lattice** | typed structural representation of fields, operators, constraints, evidence, time, and provenance |
+| **Geometric Information Mapped Lattice** | typed structural memory |
 | **LFM2.5-family model** | learned statistical reasoning substrate |
-| **QSOL_NS_REASONER** | reasoning and execution controller |
-| **NS-SIM / symbolic / Lean 4** | executable numerical, symbolic, and formal evidence |
-| **Scientific Verifier** | claim classification, evidence checks, and fail-closed output gating |
+| **QSOL_NS_REASONER** | reasoning/execution controller |
+| **NS-SIM / symbolic / Lean 4** | executable evidence |
+| **Scientific Verifier** | evidence checks and fail-closed claim gating |
 
 ## Backbone direction
 
-The current preferred candidate is:
+Current preferred candidate:
 
 ```text
 LiquidAI/LFM2.5-8B-A1B-Base
 ```
 
-This is a **preferred candidate, not a frozen dependency**. The first implementation phase should prove the external architecture before modifying the model backbone.
+This is a preferred candidate, **not a frozen dependency**. The architecture should be benchmarked before any backbone surgery.
 
-## The lattice
+## 3–5–8 lattice direction
 
-The Geometric Information Mapped Lattice is intended to be a real intermediate representation, not decorative prompt prose.
-
-For Navier–Stokes it can represent:
-
-- domain and geometry;
-- coordinate systems and discretization;
-- velocity, pressure, vorticity, density, and forcing;
-- gradient, divergence, Laplacian, advection, and projection operators;
-- incompressibility and boundary constraints;
-- temporal state;
-- analytical, numerical, retrieved, and formal evidence;
-- provenance, experiment identity, backend, precision, and claim class.
-
-Typed relationships can encode structures such as:
+The first concrete lattice candidate will be implemented in **PR #3**:
 
 ```text
-velocity   --DIVERGENCE-->    incompressibility
-pressure   --GRADIENT-->      momentum_equation
-geometry   --CONSTRAINS-->    boundary_condition
-dt         --CONSTRAINED_BY--> CFL
-experiment --EXECUTED_BY-->   NS_SIM
-result     --SUPPORTED_BY-->   receipt
+3×3×3 Sierpinski control lattice
+        +
+5×5×5 scientific relation array
+        +
+8×8×8 Rubik transformation workspace
+        +
+immutable provenance ledger
 ```
 
-## Numerical and formal evidence
+The 3–5–8 topology is an **architecture candidate**, not yet a claim of optimality.
 
-NS-LLM should not simulate having executed scientific tools.
+## Implementation roadmap
+
+The staged sequence is intentionally strict:
+
+```text
+PR #1  Documentation + contracts
+   ↓
+PR #2  QSOL-LFM-NS model/orchestration substrate
+   ↓
+PR #3  3–5–8 Lattice Cell Arrays
+   ↓
+PR #4  Custom Reasoner — QSOL_NS_REASONER_V1
+   ↓
+PR #5  NS-SIM integration + numerical evidence gating
+```
+
+See the full human roadmap: **[`ROADMAP.md`](ROADMAP.md)**.
+
+## Numerical and formal evidence
 
 Core rule:
 
@@ -92,50 +92,18 @@ Core rule:
 DO_NOT_PRETEND_YOU_SOLVED_THE_PDE
 ```
 
-When numerical evidence is required, the reasoner should invoke an executable solver such as NS-SIM and bind claims to the returned experiment identity, diagnostics, receipts, and provenance.
-
-Formal notation is likewise not treated as proof. Lean 4 is reserved for bounded propositions that are actually checked.
-
-## PR #1 — documentation and contracts
-
-This documentation bootstrap establishes:
-
-- the architecture vocabulary;
-- machine-only agent instructions;
-- the AI documentation entrypoint;
-- context and evidence interfaces;
-- the initial lattice schema;
-- scientific/output claim boundaries;
-- the training and backbone contract;
-- the staged implementation roadmap.
-
-**No model implementation is introduced in this PR.**
-
-## PR #2 — first implementation target
-
-The first implementation PR should build the external-orchestration baseline:
-
-```text
-QSOL-CONTEXT
-    +
-RES=RAG
-    +
-SERIALIZED LATTICE
-    +
-LFM2.5-FAMILY MODEL INTERFACE
-    +
-NS-SIM TOOL INTERFACE
-```
-
-The baseline should avoid modifying the backbone. It exists to test whether separated context, evidence, structure, execution, and verification improve the system before deeper lattice/model integration is attempted.
+Numerical claims should be bound to actual solver-produced evidence when execution is required. Formal notation is not treated as proof unless a checked formal artifact supports the proposition.
 
 ## AI / agent documentation
 
-AI agents should **not** treat this README as their primary operating contract.
+AI agents should **not** treat this README as their operating contract.
 
-**Machine entrypoint:** [`README4AI.md`](README4AI.md)
+- Machine entrypoint: [`README4AI.md`](README4AI.md)
+- Machine roadmap: [`ROADMAP4AI.md`](ROADMAP4AI.md)
+- Canonical agent contract: [`AGENTS.md`](AGENTS.md)
+- Machine authority map: [`docs/index.json`](docs/index.json)
 
-`README4AI.md`, `AGENTS.md`, `.github/copilot-instructions.md`, and `docs/*.json` are intentionally optimized for AI agents, deterministic future models, and tooling rather than human readability.
+Agent-facing documents are intentionally optimized for machine consumption and deterministic future models rather than human readability.
 
 ## Claim boundary
 
@@ -143,22 +111,9 @@ NS-LLM does **not** claim that:
 
 - an LLM has solved the Navier–Stokes Millennium Prize problem;
 - language-model weights replace numerical simulation;
-- retrieved text is automatically factual;
+- retrieval is automatically factual;
 - formal-looking notation constitutes proof;
-- a large context window is equivalent to reasoning;
-- one verification mechanism is suitable for every scientific claim.
+- large context windows are equivalent to reasoning;
+- the proposed 3–5–8 lattice is already known to be optimal.
 
-Different claims require different evidence.
-
-## Related repositories
-
-- QSOL-CONTEXT — persistent deterministic context substrate
-- RES=RAG — dynamic evidence retrieval / protocol research
-- NS-SIM — deterministic Navier–Stokes execution and numerical evidence
-- NS — Navier–Stokes research artifacts
-
----
-
-**Repository phase:** `ARCHITECTURE_SPECIFICATION`
-
-**Implementation begins:** `PR #2`
+The project is an architecture and engineering experiment in separating reasoning, structured memory, evidence, execution, and verification.
